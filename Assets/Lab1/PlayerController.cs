@@ -7,15 +7,22 @@ public class PlayerController : MonoBehaviour
     public float speed = 5f, crouchSpeed = 2.5f;
     public float jumpHeight = 1.2f, gravity = -20f;
     public float mouseSens = 2f;
+    public float aimSpeedMultiplier = 0.5f;
     public KeyCode jumpKey = KeyCode.LeftShift;
     public KeyCode crouchKey = KeyCode.LeftControl;
+    public KeyCode crouchToggleKey = KeyCode.C;
+
 
     [HideInInspector] public bool topDown;   // ustawia CameraManager
+
+    [HideInInspector] public bool aiming;   // ustawia PlayerShooting
+    
 
     CharacterController cc;
     float velY;
     Vector3? target;                         // cel dla ruchu myszą (pkt 8)
     float standHeight, standCenterY;
+    bool crouchToggled;
 
     void Start()
     {
@@ -31,13 +38,17 @@ public class PlayerController : MonoBehaviour
         bool grounded = cc.isGrounded;
         if (grounded && velY < 0) velY = -2f;
 
-        bool crouching = Input.GetKey(crouchKey);
+        if (Input.GetKeyDown(crouchToggleKey)) crouchToggled = !crouchToggled;
+        bool crouching = crouchToggled || Input.GetKey(crouchKey);
+
         float spd = crouching ? crouchSpeed : speed;
+        if (aiming) spd *= aimSpeedMultiplier;
         Vector3 move = Vector3.zero;
+
 
         if (!topDown)
         {
-            // pkt 5: mysz obraca postać
+            
             transform.Rotate(0, Input.GetAxis("Mouse X") * mouseSens, 0);
             move = transform.right * Input.GetAxis("Horizontal")
                  + transform.forward * Input.GetAxis("Vertical");
@@ -46,7 +57,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (target.HasValue)
         {
-            // pkt 8: idź do klikniętego punktu
+            
             Vector3 d = target.Value - transform.position;
             d.y = 0;
             if (d.magnitude < 0.15f) target = null;
@@ -57,7 +68,7 @@ public class PlayerController : MonoBehaviour
                     Quaternion.LookRotation(move), 10f * Time.deltaTime);
             }
         }
-
+        
         // skok
         if (grounded && Input.GetKeyDown(jumpKey) && !crouching)
         {
