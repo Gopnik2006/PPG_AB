@@ -8,9 +8,11 @@ public class PlayerController : MonoBehaviour
     public float jumpHeight = 1.2f, gravity = -20f;
     public float mouseSens = 2f;
     public float aimSpeedMultiplier = 0.5f;
-    public KeyCode jumpKey = KeyCode.LeftShift;
+    public float sprintSpeed = 8f;
+    public KeyCode jumpKey = KeyCode.Space;
     public KeyCode crouchKey = KeyCode.LeftControl;
     public KeyCode crouchToggleKey = KeyCode.C;
+    public KeyCode sprintKey = KeyCode.LeftShift;
 
 
     [HideInInspector] public bool topDown;   // ustawia CameraManager
@@ -41,7 +43,8 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(crouchToggleKey)) crouchToggled = !crouchToggled;
         bool crouching = crouchToggled || Input.GetKey(crouchKey);
 
-        float spd = crouching ? crouchSpeed : speed;
+        bool sprinting = Input.GetKey(sprintKey) && !crouching && !aiming;
+        float spd = crouching ? crouchSpeed : (sprinting ? sprintSpeed : speed);
         if (aiming) spd *= aimSpeedMultiplier;
         Vector3 move = Vector3.zero;
 
@@ -86,7 +89,7 @@ public class PlayerController : MonoBehaviour
 
         if (animator)
         {
-            animator.SetFloat("Speed", move.magnitude , 0.1f, Time.deltaTime);
+            animator.SetFloat("Speed", move.magnitude * (sprinting ? 2f : 1f), 0.1f, Time.deltaTime);
             animator.SetBool("Crouch", crouching);
         }
     }

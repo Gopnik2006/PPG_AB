@@ -5,6 +5,7 @@ public class CameraManager : MonoBehaviour
 {
     public PlayerController player;
     public LayerMask groundMask = ~0;
+    public KeyCode viewKey = KeyCode.Tab;
 
     [Header("Third person")]
     public float distance = 5f, minDist = 2f, maxDist = 12f;
@@ -38,7 +39,7 @@ public class CameraManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space)) SetMode(!topDown);
+        if (Input.GetKeyDown(viewKey)) SetMode(!topDown);
 
         float scroll = Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
 
